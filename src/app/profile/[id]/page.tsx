@@ -2,7 +2,11 @@ interface UserProfileParams {
   id: string;
 }
 
-export default function UserProfile({ params }: { params: UserProfileParams }) {
+export default async function UserProfile({
+  params,
+}: {
+  params: UserProfileParams;
+}) {
   return (
     <div className="container flex flex-col items-center justify-center min-h-screen">
       <h1 className="text-5xl font-semibold mb-4">Profile</h1>
