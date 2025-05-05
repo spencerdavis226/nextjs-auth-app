@@ -15,7 +15,8 @@ export default function SignupPage() {
     username: '',
   });
 
-  const onSignup = async () => {
+  const onSignup = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     try {
       setLoading(true);
       const response = await axios.post('/api/users/signup', user);
@@ -42,7 +43,7 @@ export default function SignupPage() {
       <h1 className="text-4xl font-bold mb-6">
         {loading ? 'Signing up...' : 'Signup'}
       </h1>
-      <div className="flex flex-col space-y-6">
+      <form onSubmit={onSignup} className="flex flex-col space-y-6">
         <input
           type="text"
           id="username"
@@ -68,15 +69,16 @@ export default function SignupPage() {
           placeholder="Password"
         />
         <button
-          onClick={onSignup}
+          type="submit"
           className="bg-blue-500 text-white rounded-md p-2 w-64"
+          disabled={buttonDisabled}
         >
           {buttonDisabled ? 'Enter your details' : 'Signup'}
         </button>
         <Link href="/login" className="text-blue-500">
           Already have an account? Login
         </Link>
-      </div>
+      </form>
     </div>
   );
 }

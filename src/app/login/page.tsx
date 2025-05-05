@@ -1,28 +1,52 @@
 'use client';
 import Link from 'next/link';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [buttonDisabled, setButtonDisabled] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
   const [user, setUser] = React.useState({
     email: '',
     password: '',
   });
 
-  const onLogin = async () => {
+  const onLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     try {
-      const response = await axios.post('/api/login', user);
+      setLoading(true);
+      const response = await axios.post('/api/users/login', user);
       console.log(response.data);
+      toast.success('Login successful');
+
+      // Get username from response and redirect to user-specific profile page
+      const { username } = response.data;
+      router.push(`/profile/${username}`);
     } catch (error) {
+      toast.error('Login failed');
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
+  useEffect(() => {
+    if (user.email && user.password) {
+      setButtonDisabled(false);
+    } else {
+      setButtonDisabled(true);
+    }
+  }, [user]);
+
   return (
     <div className="flex flex-col justify-center items-center min-h-screen text-center">
-      <h1 className="text-4xl font-bold mb-6">Login</h1>
-      <div className="flex flex-col space-y-6">
+      <h1 className="text-4xl font-bold mb-6">
+        {loading ? 'Loading...' : 'Login'}
+      </h1>
+      <form onSubmit={onLogin} className="flex flex-col space-y-6">
         <input
           type="email"
           id="email"
@@ -40,15 +64,16 @@ export default function LoginPage() {
           placeholder="Password"
         />
         <button
-          onClick={onLogin}
+          type="submit"
           className="bg-blue-500 text-white rounded-md p-2 w-64"
+          disabled={buttonDisabled}
         >
-          Login
+          {buttonDisabled ? 'Enter your email and password' : 'Login'}
         </button>
         <Link href="/signup" className="text-blue-500">
           Dont have an account? Signup
         </Link>
-      </div>
+      </form>
     </div>
   );
 }
